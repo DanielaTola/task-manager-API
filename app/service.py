@@ -45,7 +45,6 @@ class TaskService:
     def get_tasks_by_status(self, status: str) -> list[TaskResponse]:
         if status not in ["pending", "in_progress", "completed"]:
             raise HTTPException(status_code=400, detail="Invalid status value")
-        
         tasks = self.db.query(Task).filter(Task.status == status).all()
         return [TaskResponse.from_orm(task) for task in tasks]  
     
