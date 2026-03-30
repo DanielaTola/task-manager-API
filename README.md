@@ -90,7 +90,7 @@ Swagger documentation: http://127.0.0.1:8000/docs
 The project includes automated tests written with pytest.
 To run the test suite:
 ```bash
-pytestMostrar 
+pytest
 ```
 Tests are executed using a SQLite in-memory database, ensuring:
 
