@@ -1,8 +1,9 @@
-from ..models.task import Task
-from ..schemas.task import TaskCreate, TaskUpdate, TaskResponse
-from sqlalchemy.exc import NoResultFound
-from sqlalchemy.orm import Session 
 from fastapi import HTTPException
+from sqlalchemy.exc import NoResultFound
+from sqlalchemy.orm import Session
+
+from ..models.task import Task
+from ..schemas.task import TaskCreate, TaskResponse, TaskUpdate
 
 
 class TaskService:
@@ -17,12 +18,14 @@ class TaskService:
         if task_create.status not in ["pending", "in_progress", "completed"]:
             raise HTTPException(status_code=400, detail="Invalid status value")
         if self.db.query(Task).filter(Task.title == task_create.title).first():
-            raise HTTPException(status_code=400, detail="Task with this title already exists")
-        
+            raise HTTPException(
+                status_code=400, detail="Task with this title already exists"
+            )
+
         task = Task(
-            title = task_create.title, 
-            description = task_create.description, 
-            status = task_create.status
+            title=task_create.title,
+            description=task_create.description,
+            status=task_create.status,
         )
 
         self.db.add(task)
@@ -30,7 +33,7 @@ class TaskService:
         self.db.refresh(task)
 
         return TaskResponse.from_orm(task)
-    
+
     def get_task(self, task_id: str) -> TaskResponse:
         try:
             task = self.db.query(Task).filter(Task.id == task_id).one()
@@ -41,13 +44,13 @@ class TaskService:
     def get_all_tasks(self) -> list[TaskResponse]:
         tasks = self.db.query(Task).all()
         return [TaskResponse.from_orm(task) for task in tasks]
-    
+
     def get_tasks_by_status(self, status: str) -> list[TaskResponse]:
         if status not in ["pending", "in_progress", "completed"]:
             raise HTTPException(status_code=400, detail="Invalid status value")
         tasks = self.db.query(Task).filter(Task.status == status).all()
-        return [TaskResponse.from_orm(task) for task in tasks]  
-    
+        return [TaskResponse.from_orm(task) for task in tasks]
+
     def delete_task(self, task_id: str) -> None:
         try:
             task = self.db.query(Task).filter(Task.id == task_id).one()
@@ -55,7 +58,7 @@ class TaskService:
             self.db.commit()
         except NoResultFound:
             raise HTTPException(status_code=404, detail="Task not found")
-        
+
     def update_task(self, task_id: str, task_update: TaskUpdate) -> TaskResponse:
         try:
             task = self.db.query(Task).filter(Task.id == task_id).one()
@@ -75,7 +78,7 @@ class TaskService:
         self.db.refresh(task)
 
         return TaskResponse.from_orm(task)
-    
+
     def complete_task(self, task_id: str) -> TaskResponse:
         try:
             task = self.db.query(Task).filter(Task.id == task_id).one()

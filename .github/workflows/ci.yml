@@ -9,6 +9,7 @@ on:
         branches:
             - main
             - develop
+    workflow_dispatch: 
 
 jobs:
     test: 
@@ -16,7 +17,7 @@ jobs:
 
         steps:
             - name: Download code
-              uses: actions/checkout@v2
+              uses: actions/checkout@v4
             
             - name: Set up Python
               uses: actions/setup-python@v5
@@ -28,12 +29,17 @@ jobs:
                 python -m pip install --upgrade pip
                 pip install -r requirements.txt
 
+            - name: Run Ruff
+              run: |
+                ruff check .
+
             - name: Run tests
               run: |
                 pytest
     
     docker-build: 
         runs-on: ubuntu-latest
+        needs: test
 
         steps:
           - name: Download code

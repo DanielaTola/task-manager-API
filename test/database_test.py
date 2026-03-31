@@ -4,21 +4,17 @@ from sqlalchemy.pool import StaticPool
 
 from app.data.database import Base
 
-
 # SQLite en memoria
 SQLALCHEMY_DATABASE_URL = "sqlite://"
 
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL,
-    connect_args={"check_same_thread": False}, 
-    poolclass=StaticPool
+    connect_args={"check_same_thread": False},
+    poolclass=StaticPool,
 )
 
-TestingSessionLocal = sessionmaker(
-    autocommit=False,
-    autoflush=False,
-    bind=engine
-)
+TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
 
 def create_test_db():
     Base.metadata.create_all(bind=engine)
