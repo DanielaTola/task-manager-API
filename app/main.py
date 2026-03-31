@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from .crud import task_router
+from .routers.tasks import task_router
 from .data.database import create_tables
 
 app = FastAPI()

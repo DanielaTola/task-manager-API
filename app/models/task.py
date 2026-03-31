@@ -1,5 +1,5 @@
 import uuid
-from .data.database import Base
+from ..data.database import Base
 from sqlalchemy import Column, String
 
 class Task(Base):

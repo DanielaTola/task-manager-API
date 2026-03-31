@@ -1,5 +1,5 @@
-from .models import Task
-from .schemas import TaskCreate, TaskUpdate, TaskResponse
+from ..models.task import Task
+from ..schemas.task import TaskCreate, TaskUpdate, TaskResponse
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session 
 from fastapi import HTTPException
