@@ -2,7 +2,7 @@ import uuid
 
 from sqlalchemy import Column, String
 
-from ..data.database import Base
+from ..core.database import Base
 
 
 class Task(Base):
@@ -15,6 +15,6 @@ class Task(Base):
         index=True,
         default=lambda: str(uuid.uuid4()),
     )
-    title = Column(String, index=True)
-    description = Column(String)
-    status = Column(String, default="pending")
+    title = Column(String(255), index=True)
+    description = Column(String(255))
+    status = Column(String(50),nullable= False,default="pending")

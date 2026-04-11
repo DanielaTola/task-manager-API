@@ -1,12 +1,14 @@
 from fastapi import FastAPI
 
-from .data.database import create_tables
+from .core.database import Base,engine
+from .models.task import Task
 from .routers.tasks import task_router
 
-app = FastAPI()
+app = FastAPI(title="Task Manager API", version="1.0.0")
+
 app.include_router(task_router)
 
 
 @app.on_event("startup")
 def on_startup():
-    create_tables()
+    Base.metadata.create_all(bind=engine)
