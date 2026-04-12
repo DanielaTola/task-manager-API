@@ -1,8 +1,8 @@
-import os 
+import os
 from dataclasses import dataclass
 from pathlib import Path
-from dotenv import load_dotenv
 
+from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).parent.parent.parent
 
@@ -25,7 +25,12 @@ class Settings:
     sqlalchemy_echo: bool = str_to_bool(os.getenv("SQLALCHEMY_ECHO"), default=False)
     secret_key: str = os.getenv("SECRET_KEY", "change-me")
     algorithm: str = os.getenv("ALGORITHM", "HS256")
-    access_token_expire_minutes: int = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "30"))
+    access_token_expire_minutes: int = int(
+        os.getenv(
+            "ACCESS_TOKEN_EXPIRE_MINUTES", 
+            "30"
+        )
+    )
 
 settings = Settings()
 

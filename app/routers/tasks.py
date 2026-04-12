@@ -6,7 +6,6 @@ from ..core.database import get_db
 from ..schemas.task import TaskCreate, TaskResponse, TaskUpdate
 from ..services.task_service import TaskService
 
-
 task_router = APIRouter(prefix="/tasks", tags=["Tasks"])
 
 

@@ -1,7 +1,7 @@
 import uuid
-
-from sqlalchemy import Column, String, Text, DateTime, ForeignKey
 from datetime import datetime
+
+from sqlalchemy import Column, DateTime, ForeignKey, String, Text
 from sqlalchemy.orm import relationship
 
 from ..core.database import Base
@@ -21,7 +21,12 @@ class Task(Base):
     status = Column(String(50), nullable= False, default="pending")
     owner_id = Column(String(36), ForeignKey("users.id"), nullable=False)
     created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
-    updated_at = Column(DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
+    updated_at = Column(
+        DateTime, 
+        nullable=False, 
+        default=datetime.utcnow, 
+        onupdate=datetime.utcnow
+    )
     
     
     owner = relationship("User", back_populates="tasks")

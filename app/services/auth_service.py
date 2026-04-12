@@ -1,9 +1,9 @@
-from sqlalchemy.orm import Session
 from sqlalchemy import or_
+from sqlalchemy.orm import Session
 
-from app.core.security import verify_password, create_access_token, hash_password
+from app.core.security import create_access_token, hash_password, verify_password
 from app.models.user import User
-from app.schemas.auth import UserLogin, TokenResponse, UserCreate
+from app.schemas.auth import TokenResponse, UserCreate, UserLogin
 
 
 class AuthService:
@@ -32,7 +32,10 @@ class AuthService:
         return user
 
     def _validate_password_strength(self, password: str) ->None:
-        """Implement password strength validation logic here, such as checking for minimum length, presence of uppercase letters, numbers, and special characters."""
+        """Implement password strength validation logic here, 
+        such as checking for minimum length, 
+        presence of uppercase letters, 
+        numbers, and special characters."""
         if len (password) < 8: 
             raise ValueError("Password must be at least 8 characters long")
         if not any(c.isupper() for c in password):
