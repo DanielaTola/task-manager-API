@@ -5,9 +5,6 @@ from sqlalchemy.orm import sessionmaker, Session, declarative_base
 from app.core.config import settings
 
 
-print(f"Using database URL: {settings.database_url}")
-
-
 def get_engine():
     is_sqlite = settings.database_url.startswith("sqlite")
 
