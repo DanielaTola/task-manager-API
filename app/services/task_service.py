@@ -11,7 +11,7 @@ class TaskService:
     def __init__(self, db: Session):
         self.db = db
 
-    def create_task(self, task_create: TaskCreate) -> TaskResponse:
+    def create_task(self, task_create: TaskCreate, owner_id:str) -> TaskResponse:
 
         if not task_create.title or not task_create.title.strip():
             raise HTTPException(status_code=400, detail="Title is required")
@@ -26,6 +26,7 @@ class TaskService:
             title=task_create.title,
             description=task_create.description,
             status=task_create.status,
+            owner_id=owner_id
         )
 
         self.db.add(task)
@@ -34,15 +35,18 @@ class TaskService:
 
         return TaskResponse.from_orm(task)
 
-    def get_task(self, task_id: str) -> TaskResponse:
+    #retorna uma tarefa específica com base no ID, ou lança um erro 404 se a tarefa não for encontrada
+    def get_task(self, task_id: str, owner_id: str) -> TaskResponse:
         try:
             task = self.db.query(Task).filter(Task.id == task_id).one()
             return TaskResponse.from_orm(task)
         except NoResultFound:
             raise HTTPException(status_code=404, detail="Task not found")
 
-    def get_all_tasks(self) -> list[TaskResponse]:
-        tasks = self.db.query(Task).all()
+    #devuelve el listado de todas las tares del usuario
+    def get_all_tasks(self, owner_id: str) -> list[TaskResponse]:
+        tasks = self.db.query(Task).filter(Task.owner_id == owner_id).all()
+        
         return [TaskResponse.from_orm(task) for task in tasks]
 
     def get_tasks_by_status(self, status: str) -> list[TaskResponse]:
