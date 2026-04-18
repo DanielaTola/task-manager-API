@@ -5,6 +5,7 @@ from app.core.security import create_access_token, hash_password, verify_passwor
 from app.models.user import User
 from app.schemas.auth import TokenResponse, UserCreate
 
+
 class AuthService:
     def __init__(self, db: Session):
         self.db = db

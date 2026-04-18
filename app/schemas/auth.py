@@ -3,6 +3,7 @@ from typing import Optional
 
 from pydantic import BaseModel, EmailStr, Field
 
+
 class UserCreate(BaseModel): 
     name: str = Field(..., example="John Doe")
     last_name: str = Field(..., example="Doe")
