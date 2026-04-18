@@ -1,19 +1,17 @@
 # 🚀 Task Manager API — DevOps Portfolio Project
 
-API RESTful para gestión de tareas con autenticación JWT, diseñada siguiendo buenas prácticas de backend, testing y automatización CI/CD.
-
-Este proyecto forma parte de mi transición profesional hacia **DevOps Engineering**, integrando desarrollo, testing automatizado y pipeline de integración continua.
+API RESTful para gestión de tareas con autenticación JWT, desarrollada con FastAPI y diseñada como proyecto de portafolio para transición hacia **DevOps Engineering**.
 
 ---
 
 ## 🎯 Objetivo del proyecto
 
-Construir una API moderna que demuestre:
+Este proyecto busca demostrar:
 
 * Diseño backend con arquitectura por capas
 * Seguridad con autenticación JWT
 * Testing automatizado
-* Integración continua (CI)
+* Integración continua (CI/CD)
 * Contenerización con Docker
 * Preparación para despliegue en cloud (AWS-ready)
 
@@ -43,46 +41,140 @@ app/
 ├── services/        # Lógica de negocio
 ├── routers/         # Endpoints (auth, tasks)
 ├── dependencies/    # Dependencias (JWT, auth)
-│
+
+alembic/             # Migraciones de base de datos
 test/                # Tests con pytest
 ```
 
 ---
 
-## 🔐 Seguridad (JWT)
+## ⚙️ Instalación y ejecución local
 
-El sistema implementa autenticación basada en tokens JWT.
-
-### Flujo de autenticación
-
-1. Usuario se registra
-2. Usuario hace login
-3. Se genera un access token
-4. El cliente usa el token en cada request protegido
+### 1. Clonar el repositorio
 
 ```bash
+git clone https://github.com/DanielaTola/task-manager-API.git
+cd task-manager-API
+```
+
+### 2. Crear entorno virtual
+
+```bash
+python -m venv venv
+source venv/bin/activate  # Mac/Linux
+venv\Scripts\activate     # Windows
+```
+
+### 3. Instalar dependencias
+
+```bash
+pip install -r requirements.txt
+```
+
+---
+
+### 4. Configurar variables de entorno
+
+Crear un archivo `.env` basado en:
+
+```env
+DATABASE_URL=sqlite:///./task_manager.db
+SECRET_KEY=your_secret_key
+ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=30
+```
+
+---
+
+### 5. Ejecutar migraciones
+
+```bash
+alembic upgrade head
+```
+
+---
+
+### 6. Levantar la API
+
+```bash
+uvicorn app.main:app --reload
+```
+
+---
+
+### 7. Acceder a la documentación
+
+```bash
+http://localhost:8000/docs
+```
+
+---
+
+## 🔐 Autenticación (JWT)
+
+### Flujo
+
+1. Registro de usuario
+2. Login
+3. Recepción de access token
+4. Uso del token en endpoints protegidos
+
+---
+
+### Registro
+
+```http
+POST /auth/register
+```
+
+```json
+{
+  "name": "Maria",
+  "last_name": "Tola",
+  "date_of_birth": "1999-01-01",
+  "username": "maria",
+  "email": "maria@test.com",
+  "password": "Password123."
+}
+```
+
+---
+
+### Login
+
+```http
+POST /auth/login
+```
+
+⚠️ Importante: usar `form-data`
+
+```
+username: maria
+password: Password123.
+```
+
+---
+
+### Uso del token
+
+```http
 Authorization: Bearer <token>
 ```
 
 ---
 
-## 📝 Funcionalidades
+## 📝 Endpoints de tareas
 
-### 👤 Usuarios
+Todos requieren autenticación.
 
-* Registro (`/auth/register`)
-* Login (`/auth/login`)
+* `POST /tasks` → Crear tarea
+* `GET /tasks` → Listar tareas del usuario
+* `GET /tasks/{id}` → Obtener tarea
+* `PUT /tasks/{id}` → Actualizar
+* `DELETE /tasks/{id}` → Eliminar
+* `PATCH /tasks/{id}` → Marcar como completada
 
-### 📝 Tareas (protegidas por usuario)
-
-* Crear tarea
-* Listar tareas propias
-* Obtener tarea por ID
-* Actualizar tarea
-* Eliminar tarea
-* Marcar como completada
-
-🔐 Cada usuario solo puede acceder a sus propias tareas (`owner_id`)
+🔐 Cada usuario solo accede a sus propias tareas (`owner_id`)
 
 ---
 
@@ -94,16 +186,16 @@ Características:
 
 * Tests de endpoints
 * Flujo completo con autenticación JWT
-* Base de datos aislada (SQLite en tests)
-* Cobertura de código con `pytest-cov`
+* Base de datos SQLite aislada para tests
+* Cobertura con `pytest-cov`
 
-Ejecutar:
+### Ejecutar tests
 
 ```bash
 pytest
 ```
 
-Cobertura:
+### Ver cobertura
 
 ```bash
 pytest --cov=app
@@ -115,22 +207,20 @@ pytest --cov=app
 
 Pipeline automatizado que ejecuta:
 
-* ✅ Linting con Ruff
-* ✅ Tests automatizados
-* ✅ Validación de cobertura mínima (80%)
-* ✅ Build de imagen Docker
+* Linting con Ruff
+* Tests con pytest
+* Validación de cobertura mínima (80%)
+* Build de imagen Docker
 
 Ubicación:
 
-```bash
+```
 .github/workflows/ci.yml
 ```
 
 ---
 
 ## 🐳 Docker
-
-El proyecto está preparado para ejecutarse en contenedores.
 
 ### Build
 
@@ -148,7 +238,7 @@ docker run -p 8000:8000 task-manager-api
 
 ## ☁️ Preparado para Cloud
 
-El proyecto está diseñado para ser desplegado en AWS:
+Arquitectura objetivo:
 
 * EC2 → backend
 * RDS → base de datos
@@ -157,32 +247,33 @@ El proyecto está diseñado para ser desplegado en AWS:
 
 ---
 
-## 🧠 Tecnologías utilizadas
+## 📚 Aprendizajes
 
-* FastAPI
-* SQLAlchemy
-* JWT (python-jose)
-* Passlib (bcrypt)
-* Pytest
-* Ruff
-* Docker
+Durante este proyecto:
+
+* Pasé de una CLI local a una API completa
+* Entendí mejor separación por capas (router, service, schema)
+* Implementé autenticación real con JWT
+* Aprendí a testear flujos con autenticación
+* Integré CI/CD y debugging de pipelines
+* Experimenté errores reales (401, 422, tests fallando, etc.)
 
 ---
 
-## 📈 Roadmap (mejoras futuras)
+## 📈 Roadmap
 
 * Refresh tokens
 * Roles y permisos (RBAC)
-* Observabilidad (logs, métricas)
-* Deploy automatizado con Terraform
+* Observabilidad (logs y métricas)
+* Deploy en AWS (EC2 + RDS)
+* Infraestructura como código (Terraform)
 * Kubernetes (escalabilidad)
-* Integración con AWS (CI/CD completo)
 
 ---
 
 ## 👩‍💻 Autor
 
 **Maria Daniela Tola Romero**
-QA Engineer → DevOps Engineer 🚀
+QA → DevOps Engineer 🚀
 
 ---
