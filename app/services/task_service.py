@@ -38,7 +38,7 @@ class TaskService:
 
         return TaskResponse.from_orm(task)
 
-    #retorna uma tarefa específica com base no ID, ou lança um erro 404 se a tarefa não for encontrada
+    #retorna una tarea específica del usuario
     def get_task(self, task_id: str, owner_id: str) -> TaskResponse:
         try:
             task = self.db.query(Task).filter(

@@ -2,7 +2,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
-from app.data.database import Base
+from app.core.database import Base
 
 # SQLite en memoria
 SQLALCHEMY_DATABASE_URL = "sqlite://"

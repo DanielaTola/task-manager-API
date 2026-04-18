@@ -3,11 +3,10 @@ from fastapi.responses import Response
 from sqlalchemy.orm import Session
 
 from ..core.database import get_db
+from ..dependencies.auth import get_current_user
+from ..models.user import User
 from ..schemas.task import TaskCreate, TaskResponse, TaskUpdate
 from ..services.task_service import TaskService
-from ..models.user import User
-from ..dependencies.auth import get_current_user
-
 
 task_router = APIRouter(prefix="/tasks", tags=["Tasks"])
 
@@ -42,9 +41,11 @@ def get_tasks_by_status(status: str | None = None,
 
 
 @task_router.delete("/{task_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_task(task_id: str, 
-                db: Session = Depends(get_db),
-                current_user: User = Depends(get_current_user)):
+def delete_task(
+        task_id: str, 
+        db: Session = Depends(get_db),
+        current_user: User = Depends(get_current_user)):
+    
     task_service = TaskService(db=db)
     task_service.delete_task(task_id, current_user.id)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
@@ -61,6 +62,7 @@ def update_task(task_id: str,
 
 @task_router.patch("/{task_id}", response_model=TaskResponse)
 def complete_task(task_id: str, 
-                  db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+                  db: Session = Depends(get_db), 
+                  current_user: User = Depends(get_current_user)):
     task_service = TaskService(db=db)
     return task_service.complete_task(task_id, current_user.id)

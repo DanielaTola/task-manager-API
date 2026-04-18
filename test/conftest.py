@@ -1,7 +1,7 @@
 import pytest
 from fastapi.testclient import TestClient
 
-from app.data.database import get_db
+from app.core.database import get_db
 from app.main import app
 from test.database_test import TestingSessionLocal, create_test_db
 
