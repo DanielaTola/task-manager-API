@@ -49,23 +49,23 @@ class TaskService:
         
         return [TaskResponse.from_orm(task) for task in tasks]
 
-    def get_tasks_by_status(self, status: str) -> list[TaskResponse]:
+    def get_tasks_by_status(self, status: str, owner_id: str) -> list[TaskResponse]:
         if status not in ["pending", "in_progress", "completed"]:
             raise HTTPException(status_code=400, detail="Invalid status value")
-        tasks = self.db.query(Task).filter(Task.status == status).all()
+        tasks = self.db.query(Task).filter(Task.status == status, Task.owner_id == owner_id).all()
         return [TaskResponse.from_orm(task) for task in tasks]
 
-    def delete_task(self, task_id: str) -> None:
+    def delete_task(self, task_id: str, owner_id: str) -> None:
         try:
-            task = self.db.query(Task).filter(Task.id == task_id).one()
+            task = self.db.query(Task).filter(Task.id == task_id, Task.owner_id == owner_id).one()
             self.db.delete(task)
             self.db.commit()
         except NoResultFound:
             raise HTTPException(status_code=404, detail="Task not found")
 
-    def update_task(self, task_id: str, task_update: TaskUpdate) -> TaskResponse:
+    def update_task(self, task_id: str, task_update: TaskUpdate, owner_id: str) -> TaskResponse:
         try:
-            task = self.db.query(Task).filter(Task.id == task_id).one()
+            task = self.db.query(Task).filter(Task.id == task_id, Task.owner_id == owner_id).one()
         except NoResultFound:
             raise HTTPException(status_code=404, detail="Task not found")
 
@@ -83,9 +83,9 @@ class TaskService:
 
         return TaskResponse.from_orm(task)
 
-    def complete_task(self, task_id: str) -> TaskResponse:
+    def complete_task(self, task_id: str, owner_id: str) -> TaskResponse:
         try:
-            task = self.db.query(Task).filter(Task.id == task_id).one()
+            task = self.db.query(Task).filter(Task.id == task_id, Task.owner_id == owner_id).one()
         except NoResultFound:
             raise HTTPException(status_code=404, detail="Task not found")
 
