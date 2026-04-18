@@ -38,7 +38,9 @@ class TaskService:
     #retorna uma tarefa específica com base no ID, ou lança um erro 404 se a tarefa não for encontrada
     def get_task(self, task_id: str, owner_id: str) -> TaskResponse:
         try:
-            task = self.db.query(Task).filter(Task.id == task_id).one()
+            task = self.db.query(Task).filter(
+                Task.id == task_id, 
+                Task.owner_id == owner_id).one()
             return TaskResponse.from_orm(task)
         except NoResultFound:
             raise HTTPException(status_code=404, detail="Task not found")
