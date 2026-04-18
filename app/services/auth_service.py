@@ -3,8 +3,7 @@ from sqlalchemy.orm import Session
 
 from app.core.security import create_access_token, hash_password, verify_password
 from app.models.user import User
-from app.schemas.auth import TokenResponse, UserCreate, UserLogin
-
+from app.schemas.auth import TokenResponse, UserCreate
 
 class AuthService:
     def __init__(self, db: Session):
@@ -57,12 +56,14 @@ class AuthService:
             if existing_user.email == user_data.email:
                 raise ValueError("Email already exists")
 
-    def authenticate_user(self, login_data: UserLogin) -> TokenResponse:
+    def authenticate_user(self, username: str, password: str) -> TokenResponse:
 
-        user = self.db.query(User).filter(User.username == login_data.username).first()
-        if not user or not verify_password(login_data.password, user.hashed_password):
+        user = self.db.query(User).filter(User.username == username).first()
+        if not user or not verify_password(password, user.hashed_password):
             raise ValueError("Invalid username or password")
 
-        access_token = create_access_token(data={"sub": user.id, "email": user.email})
+        access_token = create_access_token(
+            data={"sub": user.id, "email": user.email}
+        )
 
         return TokenResponse(access_token=access_token, token_type="bearer")   

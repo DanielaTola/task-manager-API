@@ -3,7 +3,6 @@ from typing import Optional
 
 from pydantic import BaseModel, EmailStr, Field
 
-
 class UserCreate(BaseModel): 
     name: str = Field(..., example="John Doe")
     last_name: str = Field(..., example="Doe")
@@ -24,10 +23,6 @@ class UserResponse(BaseModel):
 
     class Config:
         orm_mode = True    
-class UserLogin(BaseModel):
-    username: str = Field(..., example="johndoe")
-    password: str = Field(..., example="strongpassword123")
-
 
 class TokenResponse(BaseModel):
     access_token: str
