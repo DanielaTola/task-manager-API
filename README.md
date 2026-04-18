@@ -1,156 +1,188 @@
-# Task Manager API
+# 🚀 Task Manager API — DevOps Portfolio Project
 
-REST API for task management built with **FastAPI**, **SQLAlchemy**, and **SQLite**.
+API RESTful para gestión de tareas con autenticación JWT, diseñada siguiendo buenas prácticas de backend, testing y automatización CI/CD.
 
-This project is the **evolution of a previous CLI application**, redesigned as a backend service and progressively improved with **testing, Docker, and CI/CD practices**.
-
----
-
-## Project Evolution
-
-This repository continues:
-
-👉 https://github.com/DanielaTola/task_manager_cli
-
-Progression:
-
-```text
-CLI → API → Docker → CI → Code Quality → (Next: Deployment)
-```
-
-This reflects a real learning path toward **DevOps / Backend Engineering**.
+Este proyecto forma parte de mi transición profesional hacia **DevOps Engineering**, integrando desarrollo, testing automatizado y pipeline de integración continua.
 
 ---
 
-## Tech Stack
+## 🎯 Objetivo del proyecto
 
-- Python 3.11
-- FastAPI
-- SQLAlchemy
-- SQLite
-- Pytest + pytest-cov
-- Docker
-- GitHub Actions
-- Ruff + Black (code quality)
+Construir una API moderna que demuestre:
 
----
-
-## Features
-
-- Create, read, update, delete tasks
-- Filter tasks by status
-- Mark tasks as completed
-- Automated tests with coverage
-- Dockerized application
-- CI pipeline (GitHub Actions)
-- Code linting and formatting
+* Diseño backend con arquitectura por capas
+* Seguridad con autenticación JWT
+* Testing automatizado
+* Integración continua (CI)
+* Contenerización con Docker
+* Preparación para despliegue en cloud (AWS-ready)
 
 ---
 
-## Project Structure
+## 🧱 Arquitectura
 
-```text
-task-manager-API/
-├── app/
-│   ├── data/
-│   ├── models/
-│   ├── routers/
-│   ├── schemas/
-│   ├── services/
-│   └── main.py
-├── test/
-├── .github/workflows/
-├── Dockerfile
-├── pyproject.toml
-├── pytest.ini
-├── requirements.txt
-└── README.md
+```mermaid
+flowchart LR
+    Client -->|HTTP Requests| API[FastAPI]
+    API --> Router
+    Router --> Service
+    Service --> DB[(Database)]
+    API --> Auth[JWT Auth]
+    Auth --> Security[Token Validation]
 ```
 
 ---
 
-## How to Run
-
-### 1. Setup
+## 🏗️ Estructura del proyecto
 
 ```bash
-git clone https://github.com/DanielaTola/task-manager-API.git
-cd task-manager-API
-python -m venv env
-env\Scripts\activate   # Windows
-pip install -r requirements.txt
-```
-
-### 2. Run API
-
-```bash
-uvicorn app.main:app --reload
-```
-
-Docs:
-```
-http://127.0.0.1:8000/docs
+app/
+├── core/            # Configuración, seguridad, base de datos
+├── models/          # Modelos SQLAlchemy
+├── schemas/         # Esquemas Pydantic
+├── services/        # Lógica de negocio
+├── routers/         # Endpoints (auth, tasks)
+├── dependencies/    # Dependencias (JWT, auth)
+│
+test/                # Tests con pytest
 ```
 
 ---
 
-## Running Tests
+## 🔐 Seguridad (JWT)
+
+El sistema implementa autenticación basada en tokens JWT.
+
+### Flujo de autenticación
+
+1. Usuario se registra
+2. Usuario hace login
+3. Se genera un access token
+4. El cliente usa el token en cada request protegido
+
+```bash
+Authorization: Bearer <token>
+```
+
+---
+
+## 📝 Funcionalidades
+
+### 👤 Usuarios
+
+* Registro (`/auth/register`)
+* Login (`/auth/login`)
+
+### 📝 Tareas (protegidas por usuario)
+
+* Crear tarea
+* Listar tareas propias
+* Obtener tarea por ID
+* Actualizar tarea
+* Eliminar tarea
+* Marcar como completada
+
+🔐 Cada usuario solo puede acceder a sus propias tareas (`owner_id`)
+
+---
+
+## 🧪 Testing
+
+Framework: `pytest`
+
+Características:
+
+* Tests de endpoints
+* Flujo completo con autenticación JWT
+* Base de datos aislada (SQLite en tests)
+* Cobertura de código con `pytest-cov`
+
+Ejecutar:
 
 ```bash
 pytest
 ```
 
-Includes:
-- isolated test database
-- coverage validation
+Cobertura:
+
+```bash
+pytest --cov=app
+```
 
 ---
 
-## Docker
+## ⚙️ CI/CD (GitHub Actions)
+
+Pipeline automatizado que ejecuta:
+
+* ✅ Linting con Ruff
+* ✅ Tests automatizados
+* ✅ Validación de cobertura mínima (80%)
+* ✅ Build de imagen Docker
+
+Ubicación:
+
+```bash
+.github/workflows/ci.yml
+```
+
+---
+
+## 🐳 Docker
+
+El proyecto está preparado para ejecutarse en contenedores.
+
+### Build
 
 ```bash
 docker build -t task-manager-api .
+```
+
+### Run
+
+```bash
 docker run -p 8000:8000 task-manager-api
 ```
 
 ---
 
-## CI (GitHub Actions)
+## ☁️ Preparado para Cloud
 
-Pipeline runs automatically on push:
+El proyecto está diseñado para ser desplegado en AWS:
 
-- install dependencies
-- run tests
-- validate coverage
-- build Docker image
-
----
-
-## Code Quality
-
-```bash
-ruff check . --fix
-black .
-```
-
-Ensures:
-- clean code
-- consistent style
-- fewer basic errors
+* EC2 → backend
+* RDS → base de datos
+* S3 + CloudFront → frontend (futuro)
+* GitHub Actions → CI/CD
 
 ---
 
-## What This Project Demonstrates
+## 🧠 Tecnologías utilizadas
 
-- evolution from CLI to API
-- layered backend structure
-- automated testing practices
-- containerization with Docker
-- CI pipeline setup
-- code quality enforcement
+* FastAPI
+* SQLAlchemy
+* JWT (python-jose)
+* Passlib (bcrypt)
+* Pytest
+* Ruff
+* Docker
 
 ---
 
-## About
+## 📈 Roadmap (mejoras futuras)
 
-This project is part of my transition from **Manual QA → DevOps / Backend Engineering**, focused on building real-world skills step by step.
+* Refresh tokens
+* Roles y permisos (RBAC)
+* Observabilidad (logs, métricas)
+* Deploy automatizado con Terraform
+* Kubernetes (escalabilidad)
+* Integración con AWS (CI/CD completo)
+
+---
+
+## 👩‍💻 Autor
+
+**Maria Daniela Tola Romero**
+QA Engineer → DevOps Engineer 🚀
+
+---
