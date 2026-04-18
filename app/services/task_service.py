@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from ..models.task import Task
 from ..schemas.task import TaskCreate, TaskResponse, TaskUpdate
 
-
+VALID_STATUSES = ["pending", "in_progress", "completed"]
 class TaskService:
 
     def __init__(self, db: Session):
@@ -14,24 +14,27 @@ class TaskService:
     def create_task(self, task_create: TaskCreate, owner_id:str) -> TaskResponse:
 
         if not task_create.title or not task_create.title.strip():
-            raise HTTPException(status_code=400, detail="Title is required")
-        if task_create.status not in ["pending", "in_progress", "completed"]:
-            raise HTTPException(status_code=400, detail="Invalid status value")
-        if self.db.query(Task).filter(Task.title == task_create.title).first():
-            raise HTTPException(
-                status_code=400, detail="Task with this title already exists"
-            )
-
+            raise HTTPException(status_code=400, 
+                                detail="Title is required")
+        if task_create.status not in VALID_STATUSES:
+            raise HTTPException(status_code=400, 
+                                detail="Invalid status value")
+        
         task = Task(
-            title=task_create.title,
+            title=task_create.title.strip(),
             description=task_create.description,
             status=task_create.status,
             owner_id=owner_id
         )
 
-        self.db.add(task)
-        self.db.commit()
-        self.db.refresh(task)
+        try:
+            self.db.add(task)
+            self.db.commit()
+            self.db.refresh(task)
+        except Exception as e:
+            self.db.rollback()
+            raise HTTPException(status_code=500, 
+                                detail="Failed to create task") from e
 
         return TaskResponse.from_orm(task)
 
@@ -52,47 +55,77 @@ class TaskService:
         return [TaskResponse.from_orm(task) for task in tasks]
 
     def get_tasks_by_status(self, status: str, owner_id: str) -> list[TaskResponse]:
-        if status not in ["pending", "in_progress", "completed"]:
-            raise HTTPException(status_code=400, detail="Invalid status value")
-        tasks = self.db.query(Task).filter(Task.status == status, Task.owner_id == owner_id).all()
+        if status not in VALID_STATUSES:
+            raise HTTPException(status_code=400, 
+                                detail="Invalid status value")
+        tasks = self.db.query(Task).filter(
+            Task.status == status, 
+            Task.owner_id == owner_id).all()
+        
         return [TaskResponse.from_orm(task) for task in tasks]
 
     def delete_task(self, task_id: str, owner_id: str) -> None:
         try:
-            task = self.db.query(Task).filter(Task.id == task_id, Task.owner_id == owner_id).one()
+            task = self.db.query(Task).filter(
+                Task.id == task_id, Task.owner_id == owner_id).one()
             self.db.delete(task)
             self.db.commit()
         except NoResultFound:
-            raise HTTPException(status_code=404, detail="Task not found")
+            raise HTTPException(status_code=404, 
+                                detail="Task not found")
+        except Exception as e:
+            self.db.rollback()
+            raise HTTPException(status_code=500, 
+                                detail="Failed to delete task") from e
 
-    def update_task(self, task_id: str, task_update: TaskUpdate, owner_id: str) -> TaskResponse:
+    def update_task(self, task_id: str, 
+                    task_update: TaskUpdate, 
+                    owner_id: str) -> TaskResponse:
         try:
-            task = self.db.query(Task).filter(Task.id == task_id, Task.owner_id == owner_id).one()
+            task = self.db.query(Task).filter(
+                Task.id == task_id, 
+                Task.owner_id == owner_id).one()
         except NoResultFound:
-            raise HTTPException(status_code=404, detail="Task not found")
+            raise HTTPException(status_code=404, 
+                                detail="Task not found")
 
         if task_update.title is not None:
-            task.title = task_update.title
+            if not task_update.title.strip():
+                raise HTTPException(status_code=400, 
+                                    detail="Title cannot be empty")
+            task.title = task_update.title.strip()
         if task_update.description is not None:
-            task.description = task_update.description
+            task.description = task_update.description.strip() or None
         if task_update.status is not None:
-            if task_update.status not in ["pending", "in_progress", "completed"]:
-                raise HTTPException(status_code=400, detail="Invalid status value")
+            if task_update.status not in VALID_STATUSES:
+                raise HTTPException(status_code=400, 
+                                    detail="Invalid status value")
             task.status = task_update.status
 
-        self.db.commit()
-        self.db.refresh(task)
-
-        return TaskResponse.from_orm(task)
+        try:
+            self.db.commit()
+            self.db.refresh(task)
+            return TaskResponse.from_orm(task)
+        except Exception as e:
+            self.db.rollback()
+            raise HTTPException(status_code=500, detail="Failed to update task") from e
+    
 
     def complete_task(self, task_id: str, owner_id: str) -> TaskResponse:
         try:
-            task = self.db.query(Task).filter(Task.id == task_id, Task.owner_id == owner_id).one()
+            task = self.db.query(Task).filter(
+                Task.id == task_id, 
+                Task.owner_id == owner_id).one()
         except NoResultFound:
             raise HTTPException(status_code=404, detail="Task not found")
 
         task.status = "completed"
-        self.db.commit()
-        self.db.refresh(task)
 
-        return TaskResponse.from_orm(task)
+        try:
+            self.db.commit()
+            self.db.refresh(task)
+            return TaskResponse.from_orm(task)
+        except Exception as e:
+            self.db.rollback()
+            raise HTTPException(status_code=500, 
+                                detail="Failed to complete task") from e
