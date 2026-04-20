@@ -14,7 +14,7 @@ def create_user_and_get_token():
         "last_name": "Test",
         "date_of_birth": "1990-01-01",
         "username": f"testuser{unique_id}",
-        "email": f"testuser_{unique_id}@bolivariano.com",
+        "email": f"testuser_{unique_id}@pruebas.com",
         "password": "Testpassword123."
     }
     register_response =client.post("/auth/register", json=register_data)
