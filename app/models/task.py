@@ -18,6 +18,7 @@ class Task(Base):
     )
     title = Column(String(255), nullable=False, index=True)
     description = Column(Text, nullable=False)
+    priority = Column(String(15), nullable=True, default="medium")
     status = Column(String(50), nullable= False, default="pending")
     owner_id = Column(String(36), ForeignKey("users.id"), nullable=False)
     created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
@@ -27,6 +28,5 @@ class Task(Base):
         default=datetime.utcnow, 
         onupdate=datetime.utcnow
     )
-    
     
     owner = relationship("User", back_populates="tasks")

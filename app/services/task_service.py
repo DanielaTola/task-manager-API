@@ -5,7 +5,9 @@ from sqlalchemy.orm import Session
 from ..models.task import Task
 from ..schemas.task import TaskCreate, TaskResponse, TaskUpdate
 
-VALID_STATUSES = ["pending", "in_progress", "completed"]
+VALID_STATUSES = ["pending", "in_progress", "done"]
+VALID_PRIORITY =["low","medium","high"]
+
 class TaskService:
 
     def __init__(self, db: Session):
@@ -19,11 +21,16 @@ class TaskService:
         if task_create.status not in VALID_STATUSES:
             raise HTTPException(status_code=400, 
                                 detail="Invalid status value")
+        if task_create.priority not in VALID_PRIORITY: 
+            raise HTTPException(
+                detail="Invalid priority value"
+            )
         
         task = Task(
             title=task_create.title.strip(),
             description=task_create.description,
             status=task_create.status,
+            priority=task_create.priority,
             owner_id=owner_id
         )
 
@@ -64,6 +71,19 @@ class TaskService:
         
         return [TaskResponse.from_orm(task) for task in tasks]
 
+    def get_task_by_priority(self, priority: str, owner_id:str) -> list[TaskResponse]:
+        if priority not in VALID_PRIORITY: 
+            raise HTTPException(status_code=400,
+                                detail="Invalid priority value")
+        
+        tasks = self.db.query(Task).filter(
+            Task.priority == priority, 
+            Task.owner_id == owner_id
+        ),all()
+        
+        return [TaskResponse.from_orm(task) for task in tasks]
+        
+        
     def delete_task(self, task_id: str, owner_id: str) -> None:
         try:
             task = self.db.query(Task).filter(
@@ -100,8 +120,12 @@ class TaskService:
             if task_update.status not in VALID_STATUSES:
                 raise HTTPException(status_code=400, 
                                     detail="Invalid status value")
-            task.status = task_update.status
-
+        task.status = task_update.status
+        if task_update.priority is not None:
+            if task_update.priority not in VALID_PRIORITY:
+                raise HTTPException(status_code=400, 
+                                    detail="Invalid priority value")
+        task.priority = task_update.priority
         try:
             self.db.commit()
             self.db.refresh(task)
@@ -110,7 +134,6 @@ class TaskService:
             self.db.rollback()
             raise HTTPException(status_code=500, detail="Failed to update task") from e
     
-
     def complete_task(self, task_id: str, owner_id: str) -> TaskResponse:
         try:
             task = self.db.query(Task).filter(
@@ -119,7 +142,7 @@ class TaskService:
         except NoResultFound:
             raise HTTPException(status_code=404, detail="Task not found")
 
-        task.status = "completed"
+        task.status = "done"
 
         try:
             self.db.commit()
