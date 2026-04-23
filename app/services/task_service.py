@@ -3,29 +3,15 @@ from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
 
 from ..models.task import Task
-from ..schemas.task import TaskCreate, TaskResponse, TaskUpdate
+from ..schemas.task import TaskCreate, TaskResponse, TaskUpdate, TaskPriority, TaskStatus
 
-VALID_STATUSES = ["pending", "in_progress", "done"]
-VALID_PRIORITY =["low","medium","high"]
 
 class TaskService:
 
     def __init__(self, db: Session):
         self.db = db
 
-    def create_task(self, task_create: TaskCreate, owner_id:str) -> TaskResponse:
-
-        if not task_create.title or not task_create.title.strip():
-            raise HTTPException(status_code=400, 
-                                detail="Title is required")
-        if task_create.status not in VALID_STATUSES:
-            raise HTTPException(status_code=400, 
-                                detail="Invalid status value")
-        if task_create.priority not in VALID_PRIORITY: 
-            raise HTTPException(
-                detail="Invalid priority value"
-            )
-        
+    def create_task(self, task_create: TaskCreate, owner_id:str) -> TaskResponse:        
         task = Task(
             title=task_create.title.strip(),
             description=task_create.description,
@@ -45,7 +31,6 @@ class TaskService:
 
         return TaskResponse.from_orm(task)
 
-    #retorna una tarea específica del usuario
     def get_task(self, task_id: str, owner_id: str) -> TaskResponse:
         try:
             task = self.db.query(Task).filter(
@@ -55,31 +40,33 @@ class TaskService:
         except NoResultFound:
             raise HTTPException(status_code=404, detail="Task not found")
 
-    #devuelve el listado de todas las tares del usuario
     def get_all_tasks(self, owner_id: str) -> list[TaskResponse]:
         tasks = self.db.query(Task).filter(Task.owner_id == owner_id).all()
         
         return [TaskResponse.from_orm(task) for task in tasks]
 
-    def get_tasks_by_status(self, status: str, owner_id: str) -> list[TaskResponse]:
-        if status not in VALID_STATUSES:
-            raise HTTPException(status_code=400, 
-                                detail="Invalid status value")
-        tasks = self.db.query(Task).filter(
-            Task.status == status, 
-            Task.owner_id == owner_id).all()
+    def get_tasks_by_status(self, status: TaskStatus, owner_id: str) -> list[TaskResponse]:
+        
+        tasks = (
+            self.db.query(Task)
+            .filter(
+                Task.status == status,
+                Task.owner_id == owner_id
+            )
+            .all()    
+        )
         
         return [TaskResponse.from_orm(task) for task in tasks]
 
-    def get_task_by_priority(self, priority: str, owner_id:str) -> list[TaskResponse]:
-        if priority not in VALID_PRIORITY: 
-            raise HTTPException(status_code=400,
-                                detail="Invalid priority value")
-        
-        tasks = self.db.query(Task).filter(
-            Task.priority == priority, 
-            Task.owner_id == owner_id
-        ),all()
+    def get_task_by_priority(self, priority: TaskPriority, owner_id:str) -> list[TaskResponse]:
+        tasks = (
+            self.db.query(Task)
+            .filter(
+                Task.priority == priority, 
+                Task.owner_id == owner_id
+            )
+            .all()
+        )
         
         return [TaskResponse.from_orm(task) for task in tasks]
         
@@ -108,23 +95,12 @@ class TaskService:
         except NoResultFound:
             raise HTTPException(status_code=404, 
                                 detail="Task not found")
-
-        if task_update.title is not None:
-            if not task_update.title.strip():
-                raise HTTPException(status_code=400, 
-                                    detail="Title cannot be empty")
-            task.title = task_update.title.strip()
+        
+        task.title = task_update.title.strip()
         if task_update.description is not None:
             task.description = task_update.description.strip() or None
-        if task_update.status is not None:
-            if task_update.status not in VALID_STATUSES:
-                raise HTTPException(status_code=400, 
-                                    detail="Invalid status value")
+        
         task.status = task_update.status
-        if task_update.priority is not None:
-            if task_update.priority not in VALID_PRIORITY:
-                raise HTTPException(status_code=400, 
-                                    detail="Invalid priority value")
         task.priority = task_update.priority
         try:
             self.db.commit()

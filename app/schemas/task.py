@@ -1,20 +1,44 @@
+from enum import Enum
 from typing import Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, field_validator
 
+class TaskStatus(str,Enum): 
+    pending = "pending"
+    in_progress = "in_progress"
+    done = "done"
+
+class TaskPriority(str, Enum):
+    low = "low"
+    medium = "medium"
+    high = "high"
 
 class TaskCreate(BaseModel):
-    title: str = Field(..., example="Buy groceries")
-    description: Optional[str] = Field(None, example="Milk, Bread, Eggs")
-    status: Optional[str] = Field("pending", example="pending")
-    priority: Optional[str] = Field("medium", examples="medium")
+    title: str | None = None
+    description: str | None = None
+    status: TaskStatus | None = None
+    priority: TaskPriority | None = None
+    
+    @field_validator("title")
+    @classmethod
+    def title_not_empty(cls, v): 
+        if v is not None and not v.strip(): 
+            raise ValueError("title cannot be empty")
+        return v.strip() if v else v
 
 
 class TaskUpdate(BaseModel):
-    title: Optional[str] = Field(None, example="Buy groceries")
-    description: Optional[str] = Field(None, example="Milk, Bread, Eggs")
-    status: Optional[str] = Field(None, example="pending")
-    priority: Optional[str] = Field("medium", examples="medium")
+    title: str | None = None
+    description: str | None = None
+    status: TaskStatus | None = None
+    priority: TaskPriority | None = None
+    
+    @field_validator("title")
+    @classmethod
+    def title_not_empty(cls, v): 
+        if v is not None and not v.strip(): 
+            raise ValueError("title cannot be empty")
+        return v.strip() if v else v
 
 
 class TaskResponse(BaseModel):
