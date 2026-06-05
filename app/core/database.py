@@ -11,26 +11,27 @@ def get_engine():
 
     connect_args = {"check_same_thread": False} if is_sqlite else {}
 
-
-    return create_engine (
-        settings.database_url, 
+    return create_engine(
+        settings.database_url,
         echo=settings.sqlalchemy_echo,
-        future = True,
+        future=True,
         connect_args=connect_args,
     )
+
 
 engine = get_engine()
 
 SessionLocal = sessionmaker(
-    autocommit = False, 
+    autocommit=False,
     autoflush=False,
-    bind = engine, 
-    future = True,
+    bind=engine,
+    future=True,
 )
 
 Base = declarative_base()
 
-def get_db() -> Generator [Session, None, None]:
+
+def get_db() -> Generator[Session, None, None]:
     db = SessionLocal()
     try:
         yield db

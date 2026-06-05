@@ -3,17 +3,20 @@ from typing import Optional
 
 from pydantic import BaseModel, EmailStr, Field
 
+
 class UserLogin(BaseModel):
     username: str = Field(..., example="johndoe")
     password: str = Field(..., example="strongpassword123")
 
-class UserCreate(BaseModel): 
+
+class UserCreate(BaseModel):
     name: str = Field(..., example="John Doe")
     last_name: str = Field(..., example="Doe")
     date_of_birth: Optional[datetime] = Field(None, example="1990-01-01")
     username: str = Field(..., example="johndoe")
     email: EmailStr = Field(..., example="john.doe@example.com")
     password: str = Field(..., example="strongpassword123")
+
 
 class UserResponse(BaseModel):
     id: str
@@ -26,7 +29,8 @@ class UserResponse(BaseModel):
     updated_at: datetime
 
     class Config:
-        from_attributes = True    
+        from_attributes = True
+
 
 class TokenResponse(BaseModel):
     access_token: str
