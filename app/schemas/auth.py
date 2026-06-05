@@ -3,6 +3,9 @@ from typing import Optional
 
 from pydantic import BaseModel, EmailStr, Field
 
+class UserLogin(BaseModel):
+    username: str = Field(..., example="johndoe")
+    password: str = Field(..., example="strongpassword123")
 
 class UserCreate(BaseModel): 
     name: str = Field(..., example="John Doe")
@@ -23,7 +26,7 @@ class UserResponse(BaseModel):
     updated_at: datetime
 
     class Config:
-        orm_mode = True    
+        from_attributes = True    
 
 class TokenResponse(BaseModel):
     access_token: str

@@ -26,8 +26,10 @@ class TaskService:
             self.db.refresh(task)
         except Exception as e:
             self.db.rollback()
+            print (f"Error creating task: {e}")
             raise HTTPException(status_code=500, 
-                                detail="Failed to create task") from e
+                                detail = str(e))
+                                #detail="Failed to create task") from e
 
         return TaskResponse.from_orm(task)
 
