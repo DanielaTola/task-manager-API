@@ -1,5 +1,6 @@
 from fastapi import FastAPI
-from .database import Base, engine
+
+from .core.database import Base, engine
 from .routers.auth import auth_router
 from .routers.tasks import task_router
 
