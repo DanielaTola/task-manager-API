@@ -11,5 +11,5 @@ app.include_router(auth_router)
 
 @app.on_event("startup")
 def on_startup():
-    from .models import user, task
-    Base.metadata.create_all(bind=engine)
+    Base.metadata
+    .create_all(bind=engine)
