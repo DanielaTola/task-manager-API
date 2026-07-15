@@ -1,100 +1,196 @@
-# 🚀 Task Manager API — DevOps Portfolio Project
+# 🚀 Task Manager API
 
-API RESTful para gestión de tareas con autenticación JWT, desarrollada con FastAPI y diseñada como proyecto de portafolio para transición hacia **DevOps Engineering**.
+![Python](https://img.shields.io/badge/Python-3.11-blue)
+![FastAPI](https://img.shields.io/badge/FastAPI-REST-009688)
+![SQLite](https://img.shields.io/badge/Database-SQLite-blue)
+![GitHub Actions](https://img.shields.io/badge/CI/CD-GitHub%20Actions-black)
+![AWS](https://img.shields.io/badge/Cloud-AWS%20EC2-orange)
+![Nginx](https://img.shields.io/badge/Reverse%20Proxy-Nginx-green)
+![License](https://img.shields.io/badge/License-MIT-lightgrey)
 
----
+Task Manager API es un proyecto de portafolio desarrollado con **FastAPI** que demuestra el ciclo completo de desarrollo, pruebas y despliegue automatizado de una aplicación backend.
 
-## 🎯 Objetivo del proyecto
-
-Este proyecto busca demostrar:
-
-* Diseño backend con arquitectura por capas
-* Seguridad con autenticación JWT
-* Testing automatizado
-* Integración continua (CI/CD)
-* Contenerización con Docker
-* Preparación para despliegue en cloud (AWS-ready)
+Además de implementar una API REST segura con autenticación JWT, el proyecto incorpora prácticas DevOps como integración continua, despliegue automático en AWS EC2, administración de servicios Linux mediante **systemd** y publicación mediante **Nginx**.
 
 ---
 
-## 🧱 Arquitectura
+# 🎯 Objetivos del proyecto
 
-```mermaid
-flowchart LR
-    Client -->|HTTP Requests| API[FastAPI]
-    API --> Router
-    Router --> Service
-    Service --> DB[(Database)]
-    API --> Auth[JWT Auth]
-    Auth --> Security[Token Validation]
+Este proyecto fue desarrollado para fortalecer conocimientos en:
+
+- Desarrollo Backend con FastAPI
+- Arquitectura por capas
+- SQLAlchemy
+- Autenticación JWT
+- Testing automatizado
+- Integración Continua (CI)
+- Despliegue Continuo (CD)
+- Administración de servidores Linux
+- AWS EC2
+- Reverse Proxy con Nginx
+- Automatización de despliegues
+
+---
+
+# 🏗 Arquitectura
+
+```
+                Developer
+
+                    │
+              git push main
+
+                    │
+
+             GitHub Repository
+
+                    │
+
+            GitHub Actions
+
+         Ruff • Pytest • Deploy
+
+                    │
+
+              SSH (Secrets)
+
+                    │
+
+             AWS EC2 Ubuntu
+
+                    │
+
+         git fetch / git reset
+
+                    │
+
+       pip install requirements
+
+                    │
+
+       systemctl restart API
+
+                    │
+
+              FastAPI (Uvicorn)
+
+                    │
+
+                 Nginx
+
+                    │
+
+                SQLite
 ```
 
 ---
 
-## 🏗️ Estructura del proyecto
+# 📁 Arquitectura del proyecto
 
-```bash
+```
 app/
-├── core/            # Configuración, seguridad, base de datos
-├── models/          # Modelos SQLAlchemy
-├── schemas/         # Esquemas Pydantic
-├── services/        # Lógica de negocio
-├── routers/         # Endpoints (auth, tasks)
-├── dependencies/    # Dependencias (JWT, auth)
+├── core/
+├── dependencies/
+├── models/
+├── routers/
+├── schemas/
+├── services/
 
-alembic/             # Migraciones de base de datos
-test/                # Tests con pytest
+alembic/
+tests/
+.github/
 ```
+
+El proyecto sigue una arquitectura por capas donde:
+
+- **Routers** reciben las peticiones HTTP.
+- **Services** contienen la lógica de negocio.
+- **Schemas** validan datos con Pydantic.
+- **Models** representan las entidades SQLAlchemy.
+- **Core** centraliza configuración, seguridad y base de datos.
 
 ---
 
-## ⚙️ Instalación y ejecución local
+# 🚀 Tecnologías
 
-### 1. Clonar el repositorio
+## Backend
+
+- FastAPI
+- SQLAlchemy
+- SQLite
+- JWT Authentication
+- Alembic
+- Pydantic
+
+## Testing
+
+- Pytest
+- Pytest-cov
+- Ruff
+
+## DevOps
+
+- GitHub Actions
+- AWS EC2
+- Ubuntu
+- systemd
+- Nginx
+- SSH
+- Git
+
+---
+
+# ⚙ Instalación local
+
+## Clonar repositorio
 
 ```bash
 git clone https://github.com/DanielaTola/task-manager-API.git
+
 cd task-manager-API
 ```
 
-### 2. Crear entorno virtual
+## Crear entorno virtual
 
 ```bash
-python -m venv venv
-source venv/bin/activate  # Mac/Linux
-venv\Scripts\activate     # Windows
+python -m venv .venv
+
+source .venv/bin/activate
 ```
 
-### 3. Instalar dependencias
+Windows
+
+```bash
+.venv\Scripts\activate
+```
+
+## Instalar dependencias
 
 ```bash
 pip install -r requirements.txt
 ```
 
----
+## Variables de entorno
 
-### 4. Configurar variables de entorno
-
-Crear un archivo `.env` basado en:
+Crear un archivo `.env`
 
 ```env
 DATABASE_URL=sqlite:///./task_manager.db
+
 SECRET_KEY=your_secret_key
+
 ALGORITHM=HS256
+
 ACCESS_TOKEN_EXPIRE_MINUTES=30
 ```
 
----
-
-### 5. Ejecutar migraciones
+## Ejecutar migraciones
 
 ```bash
 alembic upgrade head
 ```
 
----
-
-### 6. Levantar la API
+## Levantar aplicación
 
 ```bash
 uvicorn app.main:app --reload
@@ -102,178 +198,214 @@ uvicorn app.main:app --reload
 
 ---
 
-### 7. Acceder a la documentación
+# 🔐 Autenticación
 
-```bash
-http://localhost:8000/docs
+La API utiliza JWT Authentication.
+
+Flujo:
+
+```
+Register
+
+↓
+
+Login
+
+↓
+
+Access Token
+
+↓
+
+Authorization Bearer Token
+
+↓
+
+Protected Endpoints
 ```
 
 ---
 
-## 🔐 Autenticación (JWT)
+# 📌 Endpoints
 
-### Flujo
+## Auth
 
-1. Registro de usuario
-2. Login
-3. Recepción de access token
-4. Uso del token en endpoints protegidos
+| Método | Endpoint |
+|---------|----------|
+| POST | /auth/register |
+| POST | /auth/login |
 
----
+## Tasks
 
-### Registro
+| Método | Endpoint |
+|---------|----------|
+| GET | /tasks |
+| POST | /tasks |
+| GET | /tasks/{id} |
+| PUT | /tasks/{id} |
+| PATCH | /tasks/{id} |
+| DELETE | /tasks/{id} |
 
-```http
-POST /auth/register
-```
-
-```json
-{
-  "name": "Maria",
-  "last_name": "Tola",
-  "date_of_birth": "1999-01-01",
-  "username": "maria",
-  "email": "maria@test.com",
-  "password": "Password123."
-}
-```
+Cada usuario únicamente puede acceder a sus propias tareas.
 
 ---
 
-### Login
+# 🧪 Testing
 
-```http
-POST /auth/login
-```
-
-⚠️ Importante: usar `form-data`
-
-```
-username: maria
-password: Password123.
-```
-
----
-
-### Uso del token
-
-```http
-Authorization: Bearer <token>
-```
-
----
-
-## 📝 Endpoints de tareas
-
-Todos requieren autenticación.
-
-* `POST /tasks` → Crear tarea
-* `GET /tasks` → Listar tareas del usuario
-* `GET /tasks/{id}` → Obtener tarea
-* `PUT /tasks/{id}` → Actualizar
-* `DELETE /tasks/{id}` → Eliminar
-* `PATCH /tasks/{id}` → Marcar como completada
-
-🔐 Cada usuario solo accede a sus propias tareas (`owner_id`)
-
----
-
-## 🧪 Testing
-
-Framework: `pytest`
-
-Características:
-
-* Tests de endpoints
-* Flujo completo con autenticación JWT
-* Base de datos SQLite aislada para tests
-* Cobertura con `pytest-cov`
-
-### Ejecutar tests
+Ejecutar pruebas
 
 ```bash
 pytest
 ```
 
-### Ver cobertura
+Cobertura
 
 ```bash
 pytest --cov=app
 ```
 
+Incluye:
+
+- autenticación JWT
+- endpoints protegidos
+- SQLite aislada
+- cobertura
+
 ---
 
-## ⚙️ CI/CD (GitHub Actions)
+# ⚙ CI/CD
 
-Pipeline automatizado que ejecuta:
+El pipeline automatiza completamente el proceso de integración y despliegue.
 
-* Linting con Ruff
-* Tests con pytest
-* Validación de cobertura mínima (80%)
-* Build de imagen Docker
-
-Ubicación:
+## Flujo
 
 ```
-.github/workflows/ci.yml
+Push a main
+
+↓
+
+GitHub Actions
+
+↓
+
+Ruff
+
+↓
+
+Pytest
+
+↓
+
+SSH
+
+↓
+
+AWS EC2
+
+↓
+
+Actualizar repositorio
+
+↓
+
+Instalar dependencias
+
+↓
+
+Reiniciar servicio systemd
+
+↓
+
+Health Check
+
+↓
+
+Aplicación disponible
 ```
 
 ---
 
-## 🐳 Docker
+# ☁ Despliegue en AWS
 
-### Build
+Infraestructura utilizada
 
-```bash
-docker build -t task-manager-api .
-```
+- Ubuntu Server
+- AWS EC2
+- FastAPI
+- Uvicorn
+- systemd
+- Nginx
+- SQLite
 
-### Run
-
-```bash
-docker run -p 8000:8000 task-manager-api
-```
-
----
-
-## ☁️ Preparado para Cloud
-
-Arquitectura objetivo:
-
-* EC2 → backend
-* RDS → base de datos
-* S3 + CloudFront → frontend (futuro)
-* GitHub Actions → CI/CD
+La aplicación permanece ejecutándose como un servicio Linux mediante **systemd**, mientras que **Nginx** actúa como reverse proxy para exponer la API.
 
 ---
 
-## 📚 Aprendizajes
+# 🔒 Seguridad
 
-Durante este proyecto:
+Las credenciales de producción **no** forman parte del repositorio.
 
-* Pasé de una CLI local a una API completa
-* Entendí mejor separación por capas (router, service, schema)
-* Implementé autenticación real con JWT
-* Aprendí a testear flujos con autenticación
-* Integré CI/CD y debugging de pipelines
-* Experimenté errores reales (401, 422, tests fallando, etc.)
+Se utilizan:
 
----
-
-## 📈 Roadmap
-
-* Refresh tokens
-* Roles y permisos (RBAC)
-* Observabilidad (logs y métricas)
-* Deploy en AWS (EC2 + RDS)
-* Infraestructura como código (Terraform)
-* Kubernetes (escalabilidad)
+- GitHub Secrets
+- Archivo `.env`
+- SSH Keys
+- Variables de entorno
 
 ---
 
-## 👩‍💻 Autor
+# 📚 Aprendizajes
 
-**Maria Daniela Tola Romero**
-QA → DevOps Engineer 🚀
+Durante este proyecto fortalecí conocimientos en:
+
+- Diseño de APIs REST
+- Arquitectura por capas
+- SQLAlchemy
+- JWT
+- Testing
+- GitHub Actions
+- AWS EC2
+- Linux
+- systemd
+- Nginx
+- CI/CD
+- Automatización de despliegues
 
 ---
+
+# 🛣 Roadmap
+
+## Backend
+
+- [ ] Refresh Tokens
+- [ ] RBAC
+- [ ] Rate Limiting
+
+## Cloud
+
+- [x] AWS EC2
+- [ ] Amazon RDS
+- [ ] Docker
+- [ ] Docker Compose
+
+## DevOps
+
+- [x] GitHub Actions
+- [x] Continuous Deployment
+- [ ] Terraform
+- [ ] CloudWatch
+- [ ] Prometheus
+- [ ] Grafana
+- [ ] Kubernetes
+
+---
+
+# 👩‍💻 Autor
+
+**María Daniela Tola Romero**
+
+QA Engineer | Backend Developer | DevOps Engineer (Learning Journey)
+
+LinkedIn: https://www.linkedin.com/in/maria-daniela-tola-7464071a9/
+
+GitHub: https://github.com/DanielaTola
