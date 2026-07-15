@@ -70,7 +70,7 @@ jobs:
           printf '%s\n' "$EC2_KNOWN_HOSTS" > ~/.ssh/known_hosts
           chmod 600 ~/.ssh/known_hosts
 
-          ssh-keygen -y -f ~/ .ssh/ec2_key 
+          ssh-keygen -y -f ~/.ssh/ec2_key 
 
 
       - name: Deploy application
