@@ -70,6 +70,9 @@ jobs:
           printf '%s\n' "$EC2_KNOWN_HOSTS" > ~/.ssh/known_hosts
           chmod 600 ~/.ssh/known_hosts
 
+          ssh-keygen -y -f ~/ .ssh/ec2_key 
+
+
       - name: Deploy application
         env:
           EC2_USER: ${{ secrets.EC2_USER }}
@@ -77,6 +80,7 @@ jobs:
         run: |
           ssh \
             -i ~/.ssh/ec2_key \
+            -o IdentitiesOnly=yes \
             -o StrictHostKeyChecking=yes \
             "$EC2_USER@$EC2_HOST" 'bash -s' <<'REMOTE_SCRIPT'
           set -Eeuo pipefail
