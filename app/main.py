@@ -4,7 +4,10 @@ from .core.database import Base, engine
 from .routers.auth import auth_router
 from .routers.tasks import task_router
 
-app = FastAPI(title="Task Manager API", version="1.0.0")
+app = FastAPI(
+    title="Task Manager API", 
+    version="1.0.1"
+)
 
 app.include_router(task_router)
 app.include_router(auth_router)
@@ -15,3 +18,4 @@ def on_startup():
     Base.metadata.create_all(
         bind=engine
     )
+
